@@ -1,0 +1,1317 @@
+---
+title: "Final Cheat Sheet"
+output: html_document
+---
+
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+## 
+LOOK FOR
+
+## CUSTOM OUTPUT
+GIVES CUSTOMISED OUTPUT FOR DIFFERENT STUFF
+
+& 
+
+
+## CUSTOM OUTPUT - USER INPUT
+GIVES CUSTOMISED OUTPUT FOR DIFFERENT STUFF FOR GIVE USER PROMPTS. 
+WHEN PROMPT POPS UP IN THE CONSOLE: ENTER THE LIST " 12,3,2,12,4,". AND IT WILL SOLVE EVERYTHING RELATED TO IT.
+
+
+# EXAMPLE OF LATEX OUTPUT
+
+  Normal distribution (standard ND, Z-transformation: 
+$$
+z=\frac{x-\mu}{\sigma}
+$$
+
+
+```{Probability LECTURE Functions}
+#----{BINOMIAL DISTRIBUTION}----
+
+#Probability P(sucess Function)
+p_success <- function(n,x,p){
+  t1<-(factorial(n)/(factorial(x)*factorial(n-x)))
+  t2<-p**x
+  t3<-(1-p)**(n-x)
+  print(cbind(t1,t2,t3))
+  print(t1*t2*t3)      
+}
+mean = n * p
+s**2 = n*p*(1-p)
+s = sqrt(s**2)
+
+#----{NORMAL DISTRIBUTION}----#
+z_clt<-function(x,u,sigma,n){
+  t1 <- (x-u)
+  t2 <- (sigma/sqrt(n))
+  z=t1/t2
+  p = pnorm(z)
+  print(cbind(z,p))
+  
+}
+
+z<-function(x,u,sigma){
+  t1 <- (x-u)
+  t2 <- (sigma)
+  z=t1/t2
+  p = pnorm(t1/t2)
+  print(cbind(z,p))
+}
+
+```
+
+
+## Confidence interval estimates
+
+```{Confidence Interval Custom}
+ci.z <- function (n, sd, xbar, pvalue2sided){
+  ##or 90% pvalue =  0.95 | for 95% = 0.975
+  se<-sd/sqrt(n)
+  z<- round(qnorm(pvalue2sided), 2)
+  low.limit <-round(xbar-z*se, 1)
+  up.limit<- round(xbar+z*se, 1)
+  print(cbind((sd/sqrt(n)),(z)*(sd/sqrt(n))))
+  print(cbind(n, xbar, sd, z, low.limit, up.limit))
+}
+
+ci.t <- function(n, sd, xbar, pvalue2sided){
+  ## Confidence Interval - Student t test
+  ##or 90% pvalue =  0.95 | for 95% = 0.975
+  se<-sd/sqrt(n)
+  t<- round(qt(pvalue2sided, n-1), 2)
+  low.limit <-round(xbar-t*se, 1)
+  up.limit <- round(xbar+t*se, 1)
+  print(cbind((sd/sqrt(n)),(t)*(sd/sqrt(n))))
+  print(cbind(n, xbar, sd, t, low.limit, up.limit))
+}
+
+ci <- function(n, sd, xbar, p) {
+  ##COMBINED Z-T FUNCTION: CONFIDENCE INTERVALs
+  ## CONTINUOUS OUTCOME
+  se<-sd/sqrt(n)
+  if (n>=30){ 
+    print("Greater than  30, V = z")
+          
+    v<-qnorm(p)}
+  else{
+    print("Less than or equal to 30, V = t")
+    v<-qt(p, n-1)}
+low.limit <- round(xbar-v*se,1)
+up.limit <-round(xbar+v*se, 1) 
+print (cbind(n, xbar, sd, v, se,low.limit, up.limit))
+} ### CUSTOM OUTPUT
+
+pci <- function(n,x,pvalue){
+  #CONFIDENT INTERVAL FOR ONE SAMPLE DICHOTOMOUS OUTCOME
+  
+  p = x/n
+  ##PointEsimations
+  point_estimate.percent <- round(p*100,4)
+  print(cbind(point_estimate.percent,"%"))
+  #Requirement Checks
+  if(n*p>=5 & n*(1-p)>=5){
+  print("np >= 5 & n(1-p)>= 5, Requirments met")
+    n*p
+    n*(1-p)}
+    
+  else{
+    print("WARNING, REQUIREMENT NOT MET")}
+  
+  ## 90/95% estimation
+    z<- round(qnorm(pvalue), 2)
+    se<-round(sqrt((p*(1-p))/(n)),4)
+    low.limit <-round(p-z*se, 3)
+    low.limit.percent<-low.limit*100
+    
+    up.limit <- round(p+z*se, 3)
+    up.limit.percent<-up.limit*100
+    
+    print(cbind(n, x, z, se,low.limit, up.limit))
+    print(cbind(low.limit.percent,up.limit.percent))
+} ### CUSTOM OUTPUT
+
+ci.md <- function(n1, xbar1, sd1, n2, xbar2, sd2,p){
+  ## TWO INDEPENDENT STUDY SAMPLES 
+  sp<-sqrt(((n1-1)*sd1**2+(n2-1)*sd2**2)/(n1+n2-2))
+  se<-sp*sqrt((1/n1)+(1/n2))
+  
+  ## ASSUMPTION CHECK
+  if (isTRUE( 0.5 <= sd1**2/sd2**2 & sd1/sd2 <= 2)== TRUE){ 
+    print("ASSUMPTION IS REASONABLE, 0.5 <= sd1/sd2")
+    print(cbind(sd1**2/sd2**2))
+    
+  }
+  else{
+    print("ASSUMPTION NOT MET")
+    v}
+  
+  
+  ## z vs t conditional
+  if (n1>=30 & n2>= 30){ 
+    print("Greater than  30, V = z. USING Z TEST")
+    v<-qnorm(p)
+    
+    }
+  else{
+    print("Less than or equal to 30, V = t. USING STUDENT-T TEST")
+    v<-qt(p, n1+n2-2)}
+
+  margin<-v*se
+  dif <-xbar1-xbar2
+  low.limit <- round(dif-margin, 2)
+  up.limit<-round(dif+margin, 2) 
+  print(cbind(dif, v, margin, low.limit, up.limit))
+} ## CUSTOM OUTPUT
+
+ci.binomial<- function(n1,x1,n2,x2,pvalue){
+  print(cbind(n1,x1,n2,x2))
+  ## Risk Difference Between two independent samples
+  
+  ##Two sample - 
+  p1 = x1/n1
+  p2 = x2/n2
+  print(cbind(p1,p2))
+  
+  #ASSUMPTION CHECK
+  if(isTRUE(min(c(n1*p1,n1*(1-p1),n2*p2,n2*(1-p2))) >= 5)){
+    print(cbind(n1*p1,n1*(1-p1),n2*p2,n2*(1-p2)))
+    print(c("MINIMUM IS ",min(c(n1*p1,n1*(1-p1),n2*p2,n2*(1-p2)))))
+    print("ASSUMPTION MET")
+  }
+  else{
+    print("WARNING ASSUMPTION NOT MET")
+  }
+  
+  
+  ## z vs t conditional
+  if (n1>=30 & n2>= 30){ 
+    print(" N= Greater than  30, V = z. USING Z TEST")
+    v<-qnorm(pvalue)
+    
+  }
+  else{
+    print("N = Less than or equal to 30, V = t. USING STUDENT-T TEST")
+    v<-qt(pvalue, n1+n2-2)}
+  
+  
+  ## confidence interval
+  dif <- p1-p2
+  SE <- sqrt(((p1*(1-p1))/(n1))+((p2*(1-p2))/(n2)))
+  margin <- v*SE
+  low.limit <- round(dif-margin, 4)
+  up.limit<-round(dif+margin, 4) 
+  print(cbind(dif, v, margin, low.limit, up.limit))
+  
+  # We are 95% confident that the difference in proportions of smokers as compared to nonsmokers with prevalent CVD is between -0.0133 and 0.0361. 
+  # The null, or no difference, value for the RD is 0. 
+  # Because the 95% CI includes 0, we cannot conclude that there is a statistically significant difference in prevalent CVD between smokers and nonsmokers.
+  
+} ## CUSTOM OUTPUT
+
+rr <- function(n1,x1,n2,x2,pvalue){
+  ## Point ESTIMATION
+  p1 = x1/n1
+  p2 = x2/n2
+  RR = p1/p2
+  print(cbind(p1,p2,RR))
+  ## z vs t conditional
+  if (n1>=30 & n2>= 30){ 
+    print(" N= Greater than  30, V = z. USING Z TEST")
+    v<-round(qnorm(pvalue),3)
+    
+  }
+  else{
+    print("N = Less than or equal to 30, V = t. USING STUDENT-T TEST")
+    v<-round(qt(pvalue, n1+n2-2),3)}
+  
+  ## CONFIDENCE INTERVAL
+  lnrr <- round(log(RR),3)
+  SE <- round(sqrt(((n1-x1)/(x1*n1))+((n2-x2)/(x2*n2))),3)
+  margin <- round(v*SE,3)
+  low.limit <- round(lnrr-margin, 4)
+  explow.limit <- round(exp(low.limit),3)
+  up.limit<-round(lnrr+margin, 4) 
+  expup.limit <- round(exp(up.limit),3)
+  print(cbind(lnrr, v, margin, low.limit, up.limit))
+  print(cbind(explow.limit,expup.limit))
+  
+  # Thus, we are 95% confident that the RR of prevalent CVD in smokers as compared to nonsmokers is between 0.89 and 1.41. 
+  # The null, or no difference, value for a relative risk is 1. 
+  # Because this Cl includes the null value, we cannot conclude that there is a statistically significant difference in prevalent CVD between smokers and nonsmokers.
+} ## CUSTOM OUTPUT
+
+or<-function(n1,x1,n2,x2,pvalue){
+  #'* ODDS RATIO *
+  
+  ## POINT ESTIMATION
+  OR <- (x1*(n2-x2))/(x2*(n1-x1))
+  print(cbind(OR))
+  
+  
+  ## z vs t conditional
+  if (n1>=30 & n2>= 30){ 
+    print(" N= Greater than  30, V = z. USING Z TEST")
+    v<-round(qnorm(pvalue),3)
+    
+  }
+  else{
+    print("N = Less than or equal to 30, V = t. USING STUDENT-T TEST")
+    v<-round(qt(pvalue, n1+n2-2),3)}
+  
+  ## confidence interval
+  lnor <- log(OR)
+  SE <- sqrt((1/x1)+(1/(n1-x1))+(1/x2)+(1/(n2-x2)))
+  margin <- round(v*SE,3)
+  low.limit <- round(lnor-margin, 4)
+  explow.limit <- round(exp(low.limit),3)
+  up.limit<-round(lnor+margin, 4) 
+  expup.limit <- round(exp(up.limit),3)
+  print(cbind(lnor, v, margin, low.limit, up.limit))
+  print(cbind(explow.limit,expup.limit))
+  
+  
+  # Thus, we are 95% confident that the odds of prevalent CVD in smokers is between 0.87 and 1.47 times the odds of prevalent CVD in nonsmokers. 
+  # The null value is 1 and because this Cl includes 1, 
+  # we cannot conclude that there is a statistically significant difference in the odds of prevalent CVD between smokers and nonsmokers.
+  
+} ## CUSTOM OUTPUT
+
+```
+
+```{CI External}
+## EXTERNAL
+#CI for one sample continuous outcome – External data
+data.survey <- read.csv ("HLSC2P07Final.csv")
+wt.mean<- mean(data.survey$wt.kg)
+wt.sd<-sd(data.survey$wt.kg)
+wt.n<-nrow(data.survey)
+
+se<-wt.sd/sqrt(wt.n)
+v<-qt(0.975, wt.n-1)
+low.limit <- round(wt.mean-v*se,1)
+up.limit <-round(wt.mean+v*se, 1) 
+print (cbind(wt.n, wt.mean, wt.sd, v, se,low.limit, up.limit))
+
+
+cat("We are 95% confident that the mean weight is between",low.limit,"and",up.limit, "kg in the population")
+```
+
+
+
+
+
+##HYPOTHESIS TESTING (I)         
+
+```{Hypothesis Testin I}
+#'* HYPOTHESIS TESTING (I) *
+library(tidyverse)
+
+###----
+samp1mean.test<- function(xbar, n, sd, mu, alpha){
+  ## One Sample Mean Test | Continuous Variable
+  cat("\n","Null Hypothesis, H0: u =",mu)
+  cat("\n", "Alternative Hypothesis, H1: u =/</>",mu,"\n \n")
+  
+  
+  se <- sd/sqrt(n)
+  diff <- xbar - mu
+  v <- round(diff/se,3)
+  if (v<0){# v <- round(diff/se, 3) Vis test statistics
+    p<-round(pt(v, n-1), 4)}
+  else{
+    p<- round(1-pt(v,n-1), 8)}
+  criticalvalue <-round(qt(1-alpha, n-1), 3)
+  print(cbind(xbar, mu, v, criticalvalue, p))
+  if(p<0.05){
+    cat("\n  Reject Null Since p(",p,") is less than<",0.05)}
+  else{
+    cat("\n Since p(",p,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+  }
+} ## CUSTOM OUTPUT
+
+samp1prop.test<- function(phat, n, p0, alpha){
+  #One Sample | Dichotomous outcome
+  cat("\n","Null Hypothesis, H0: proportion p =",p0)
+  cat("\n", "Alternative Hypothesis, H1: p !=/</>",p0,"\n \n")
+  
+  ## Assumption Check
+  print("ASSUMPTION CHECK:")
+  if(n*p0>=5 & n*(1-p0)>=5){
+    
+    cat("\n np(",n*p0,')>= 5 & n(1-p)(',n*(1-p0),')>= 5 \n \n')
+    cat('Requirments met \n \n')}
+  else{
+    print("WARNING, REQUIREMENT NOT MET")
+    cat("\n np =",n*p0,'& n(1-p) =',n*(1-p0),"\n \n")}
+  
+  
+  se=sqrt((p0*(1-p0))/n)
+  dif=phat-p0
+  z<- dif/se
+  if(z<0)
+    p<-round(pnorm(z), 4)
+  else
+    p<-round(1-pnorm(z), 4)
+  z<-round(z,2)
+  criticalval <- round(qnorm(1-alpha), 3)
+  print(cbind(phat, p0, n, criticalval, p,z))
+  if(p<0.05)
+    cat("\n  Reject Null: Since p(",p,") is less than<",0.05)
+  else
+    cat("\n Since p(",p,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+} ## CUSTOM OUTPUT
+
+samp1prop.test.categorical <- function(prop.popn,freq.sample){
+  
+  #1) Input the data using tribble function
+  prop.popn<- readline('Enter Prop.popn = ')
+  prop.popn<- as.numeric(unlist(strsplit(prop.popn, ",")))
+  freq.sample <- readline("What is the value of Frequency of Sample = ")
+  freq.sample<- as.numeric(unlist(strsplit(freq.sample, ",")))
+  
+  data.pa <- tibble(prop.popn,freq.sample)
+  
+  ##
+  cat("Null hypothesis H0: p1=",prop.popn[1],"p2=",prop.popn[2],"...pi=x \n")
+  cat("\n Null hypothesis H0: Distribution of responses is",print(prop.popn))
+  cat("\n Alternative hypothesis h1: H0 is false")
+  
+  #2) Calculate the sample size by adding frequency of each status
+  total <- sum(data.pa$freq.sample)
+  
+  #3)  Create new variables for “n”; “expected value” and “chi-square value” for each cell in
+  data.pa1 <- mutate(data.pa,
+                     n=total,
+                     expected=prop.popn*total,
+                     chi=((freq.sample - expected)**2)/expected)
+  #4) Calculate the sum of all chi-square values 
+  chi.f <- round(sum(data.pa1$chi),3)
+  
+  #5) obtain p-value
+  chi.p <- round(1-pchisq(chi.f,2),4)
+  
+  #6) Obtain critical value
+  chi.critical <- qchisq(0.95,2)
+  
+  #7) print the output
+  cat("\n \n reject H0 is chi^2 >=",chi.critical,"\n \n")
+  print(cbind(chi.f,chi.critical,chi.p))
+ 
+  
+  #8) Print the data to compare expected value and actual frequency
+  print(cbind(data.pa))
+  print(cbind(data.pa1))
+
+  #9 Conclusion
+  if(chi.p<0.05){
+    cat("P-value of",chi.p,"is less than <0.05 we reject the null hypothesis.")
+  }
+  else
+    cat(,"P-value of",chi.p,"is greater than >0.05, we fail to reject the null hypothesis.")
+
+} ## CUSTOM OUTPUT - USER INPUT
+
+
+
+``
+
+samp1prop.test.categorical()
+
+```
+
+```{HYPO I  EXTERNaL}
+#EXTERNAL
+#'* One Sample Prop test *
+#----
+  #'## importing csv into R
+  data.survey <- read.csv ("HLSC2P07Final.csv")
+  ## Create bmi variable in a new data
+  library(tidyverse)
+  bmi<-mutate(data.survey,
+              Weight = wt.kg*0.454,
+              #Height= Height/100,# already in m
+              bmi=wt.kg/ht.m**2)
+  mean.bmi <- mean(bmi$bmi)
+  sd.bmi <- sd(bmi$bmi)
+  t.test(bmi$bmi, mu=25)
+  
+  
+  # P-value of 0.078 is greater than 0.05 and 95% CI included the null value (25kg/m²), we fail to reject the null hypothesis.
+  # Therefore, the the mean BMI in 'hq_2021' data is not significantly different than the population mean BMI.
+#---
+
+
+```
+
+
+##HYPOTHESIS TESTING (II)        
+
+
+```{HYPOTHESIS TESTIN II CUSTOME Function}
+### Hypotheses testing: group comparison (II)
+## two independent samples t-test with outcome label
+ttest_twosample <- function(n1, xbar1, sd1, n2, xbar2, sd2){ 
+  # Two independent samples Test - continuous outcome
+  #To compare means between two groups that are independent (ie. mean BMI of men vs. women)
+  
+  
+  cat("\n","Null Hypothesis, H0: u1 = u2:",xbar1, "=",xbar2)
+  cat("\n", "Alternative Hypothesis, H1: u1 != u2",xbar1,"!=",xbar2,"\n \n")
+  
+  #Assumption Check
+  if(0.5<=(min(c(sd1,sd2))**2)/(max(c(sd1,sd2))**2) & (min(c(sd1,sd2))**2)/(max(c(sd1,sd2))**2)<=2){
+    print("Equal variance assumption met")
+    cat("\n 0.5 <= s1^2/s2^2 <= 2")
+    cat("\n s1^2/s2^2 = ",(min(c(sd1,sd2))**2)/(max(c(sd1,sd2))**2))
+  }
+  else{
+    print("Equal Variance Assumption Violated")
+  }
+  
+  
+  sp<-sqrt(((n1-1)*sd1**2+(n2-1)*sd2**2)/(n1+n2-2))
+  se<-sp*sqrt(1/n1 + 1/n2)
+  dif<-xbar1 - xbar2
+  v<-abs(dif/se) 
+  if(min(n1, n2)<30){
+    p<-1-pt(v, n1+n2-2)}
+  else{
+    p<-1-pnorm(v)}
+  print(cbind('mean difference', dif,
+              'test stats', round(v, 3),
+              'P-value', round(p,5)))
+  if(p<0.05){
+    cat("\n  Reject Null, Since p(",round(p,5),") is less than <",0.05)
+    cat("\n Thus There is a significant difference between the two groups in the population")
+    cat("\n The mean variable in new group is", dif ,"units lower than the placebo group")}
+  else{
+    cat("\n Since p(",p,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+    cat("\n Thus There isn't a significant difference between the two groups in the population")}
+} ## CUSTOM OUTPUT 
+
+matched.paired.ttest <- function(before,after){
+  
+  #1) Input the data using tribble function
+  before<- readline('Enter before = ')
+  before<- as.numeric(unlist(strsplit(before, ",")))
+  after <- readline("Enter After = ")
+  after<- as.numeric(unlist(strsplit(after, ",")))
+  
+  data.pa <- tibble(before,after)
+  
+  test<-t.test(data.pa$before,data.pa$after,paired=T)
+  print(test)
+  
+  
+  if(test$p.value<0.05){
+    cat("\n  Reject Null, Since p(",round(test$p.value,5),") is less than <",0.05)
+    cat("\n Thus There is a significant difference between before and after event x in the population")
+    cat("\n The mean variable in new group is", dif ,"units lower than the placebo group")}
+  else{
+    cat("\n Fail to reject Null hypothesis.")
+    cat("\n Since p(",test$p.value,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+    cat("\n Thus There isn't a significant difference before and after event x in the population")}
+  
+} ## CUSTOM OUTPUT - USER INPUT
+
+#Two sample proportion z test
+z.prop.test<- function(x1, n1, x2, n2){
+  # For Z test
+  cat("\n","Null Hypothesis, H0: p(nonexposed - exposed) = p(exposed)")
+  cat("\n", "Alternative Hypothesis H1: p(nonexposed - exposed) != p(exposed) \n")
+  
+  # For chi square test: 
+  # • 𝐻0: CVD and smoking are independent.
+  # • 𝐻1: CVD and smoking are not independent.
+  
+  
+  
+  p1 <-x1/n1
+  p2 <-x2/n2
+  p.pool <- (x1+x2)/(n1+n2)
+  
+  print(cbind(n1,x1,p1))
+  print(cbind(n2,x2,p2))
+  print(cbind(p.pool))
+  
+  ## ASSUMPTION CHECK
+  if(n1*p1>=5 & 
+     n1*(1-p1)>=5 &
+     n2*p2 >=5 &
+     n2*(1-p2) >=5 ){
+    print(rbind(n1*p1,n2*p2,n1*(1-p1),n2*(1-p2),deparse.level = 2))
+    print("ASSUMPTION MET")}
+  else{
+    print("WARNING, REQUIREMENT NOT MET")}
+  
+  
+  dif <- abs(p1-p2) 
+  se <- sqrt(p.pool*(1-p.pool)*(1/n1 + 1/n2))
+  z<-dif/se
+  p<-round(1-pnorm(z), 4) 
+  print(cbind(dif, z, p))
+  if(p<0.05){
+    cat("\n  Reject Null, Since p(",round(p,5),") is less than <",0.05)
+    cat("\n Thus There is a significant difference between the [disease] in [non-exposed] than in [disease] in [exposed] in the population")
+    cat("\n The mean variable in new group is", dif ,"units lower than the placebo group")}
+  else{
+    cat("\n Fail to Reject null hypothesis")
+    cat("\n Since p(",p,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+    cat("\n Thus There isn't a significant difference between the [disease] in [non-exposed] than in [disease] in [exposed] in the population")}
+} ## CUSTOM OUTPUT
+ 
+chi.2x2<- function(a, c, b, d) {
+  #chi^2- test (2 x 2 table)
+  
+  example<-(matrix(cbind("a","c","b","d"),2,2))
+  dimnames(example) <- list(
+    exposure=cbind("non-exposed", "exposed"), 
+    disease=cbind("no", "yes")
+  )
+  print(example)
+  
+  a<- readline('Enter "a" = ')
+  a<- as.numeric(unlist(strsplit(a, ",")))
+  b<- readline('Enter "b" = ')
+  b<- as.numeric(unlist(strsplit(b, ",")))
+  c<- readline('Enter "c" = ')
+  c<- as.numeric(unlist(strsplit(c, ",")))
+  d<- readline('Enter "d" = ')
+  d<- as.numeric(unlist(strsplit(d, ",")))
+  
+  ## Hypothesis
+  cat("\n","Null Hypothesis, H0: p(unexposed) - p(exposed = 0")
+  cat("\n, Histroy of [disease] and current [exposure] status are independent")
+  cat("\n", "Alternative Hypothesis, H1: p(unexposed) - p(exposed != 0")
+  cat("\n, Histroy of [disease] and current [exposure] status are independent")
+  
+  
+  xtab <- matrix(c(a, c, b, d), 2, 2) 
+  dimnames(xtab) <- list(
+    exposure=c("non-exposed", "exposed"), 
+    disease=c("no", "yes")
+  )
+  print(addmargins(xtab)) 
+  print(prop.table(xtab, margin=1))
+  xsq <- chisq.test(xtab)
+  print("expected values") 
+  print(xsq$expected)
+  
+  
+  
+  print(xsq)
+  
+  cat("F:Critical= ",round(qchisq(0.05,xsq[[2]][1],lower.tail = FALSE),3),"\n")
+  
+  if(xsq$p.value<0.05){
+    cat("\n  Reject Null, Since p(",round(xsq$p.value,5),") is less than <",0.05)
+    cat("\n Thus proportion of [non-exposed] individual with [disease] is significant different than the proportion of [exposed] with [disease] in the population")}
+  else{
+    cat("\n Fail to reject Null hypothesis.")
+    cat("\n Since p(",xsq$p.value,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+    cat("\n Thus proportion of [non-exposed] individual with [disease] isn't significant different than the proportion of [exposed] with [disease] in the population")
+    cat("There is no association of exposure and disease")}
+  
+} ## CUSTOM OUTPUT - USER INPUT
+
+##CHI ARRAY
+chi_array<-function(){
+  
+  x1<- readline('Enter "x1" = ')
+  x1<- as.numeric(unlist(strsplit(x1, ",")))
+  x2<- readline('Enter "x2" = ')
+  x2<- as.numeric(unlist(strsplit(x2, ",")))
+  
+  xtab <- matrix(c(x1,x2), length(x1), 2) 
+  # dimnames(xtab) <- list(
+  #   exposure=c("non-exposed", "exposed"), 
+  #   disease=c("no", "yes")
+  # )
+  print(addmargins(xtab)) 
+  print(prop.table(xtab, margin=1))
+  xsq <- chisq.test(xtab)
+  print("expected values") 
+  print(xsq$expected)
+  
+ 
+  
+  print(xsq)
+
+  cat("F:Critical= ",round(qchisq(0.05,xsq[[2]][1],lower.tail = FALSE),3),"\n")
+  
+  if(xsq$p.value<0.05){
+    cat("\n  Reject Null, Since p(",round(xsq$p.value,5),") is less than <",0.05)
+    cat("\n Thus proportion of [non-exposed] individual with [disease] is significant different than the proportion of [exposed] with [disease] in the population")}
+  else{
+    cat("\n Fail to reject Null hypothesis.")
+    cat("\n Since p(",xsq$p.value,") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+    cat("\n Thus proportion of [non-exposed] individual with [disease] isn't significant different than the proportion of [exposed] with [disease] in the population")
+    cat("There is no association of exposure and disease")}
+  
+} ## CUSTOM OUTPUT - USER INPUT
+
+```
+
+```{HYPOTHESIS II EXTERNAL }
+##-EXTERNAL -----
+#'*TWO INDEPENDENT SAMPLE*
+  #-----
+  #'## importing csv into R
+  data.survey <- read.csv ("HLSC2P07Final.csv")
+  ## Create bmi variable in a new data
+  library(tidyverse)
+  bmi<-mutate(data.survey,
+              Weight = wt.kg*0.454,
+              #Height= Height/100,# already in m
+              bmi=wt.kg/ht.m**2)
+  ## Subset data by sex
+  male<-filter(bmi, Sex==1) # select male
+  female<- filter(bmi, Sex==2) #select female
+  ## Calculate mean and SD of BMI by sex
+  cbind(male_bmi=mean(male$bmi),
+        male_sd=sd(male$bmi),
+        female_bmi=mean(female$bmi),
+        female_sd=sd(female$bmi))
+  #Normally distributed if Shapiro-Wilk p-value is >0.05 ## shapiro-Wilk normality test by sex 
+  shapiro.test(male$bmi)
+  
+   
+  ifelse(shapiro.test(male$bmi)[2]<0.05, ## DONT COPY
+         "Shapiro-Wilk p-value of is less than 0.05. BMI is not normally distributed in men, therefore normality assumption is not met. \n ",
+         "Shapiro-Wilk p-value of is Greater than 0.05 \n.BMI is not normally distributed in men, therefore normality assumption is met. \n")
+  
+  
+  
+  shapiro.test(female$bmi)
+  ifelse(shapiro.test(female$bmi)[2]<0.05, ## DONT COPY
+         "Shapiro-Wilk p-value of is less than 0.05. BMI is not normally distributed in women, therefore normality assumption is not met. \n ",
+         "Shapiro-Wilk p-value of is Greater than 0.05 \n.BMI is not normally distributed in women, therefore normality assumption is met. \n")
+  ## Equal variance Assumption
+  (max(cbind(sd(male$bmi),sd(female$bmi))))**2/(min(cbind(sd(male$bmi),sd(female$bmi))))**2
+  
+  ifelse(0.5<(max(cbind(sd(male$bmi),sd(female$bmi))))**2/(min(cbind(sd(male$bmi),sd(female$bmi))))**2 & (max(cbind(sd(male$bmi),sd(female$bmi))))**2/(min(cbind(sd(male$bmi),sd(female$bmi))))**2 <2,
+         "0.5 <sl^2/ss^2< 2.Equal variance assumption is met",
+         "0.5 !< sl^2/ss^2 !< 2.Equal Variance assumption is not met")
+  
+  ## METHOD A: using a separate bmi variable created for each sex
+  t.test(male$bmi, female$bmi, var.equal=T)
+  
+  ## METHOD B: Method B: using by function
+  t.test(bmi~Sex, data=bmi, var.equal=T)
+
+  
+
+
+  #----
+  
+#'* TWO INDEPENDENT SAMPLE PROPORTION *
+  #-----
+  data.survey <- read.csv ("HLSC2P07Final.csv")
+  ## Create bmi variable in a new data
+  library(tidyverse)
+  bmi<-mutate(data.survey,
+              Weight = wt.kg*0.454,
+              #Height= Height/100,# already in m
+              bmi=wt.kg/ht.m**2)
+  table(Sex=bmi$Sex,
+                   slp=bmi$Slp_Trouble)
+  
+  test<-chisq.test(bmi$Sex,
+        bmi$Slp_Trouble)
+  test$expected
+  
+  ##
+  bmib<-mutate(bmi,slp_newgrp = ifelse(Slp_Trouble>0,1,0))
+  
+  ##
+  table(Sex=bmib$Sex,
+        slp=bmib$slp_newgrp)
+  
+  test<-chisq.test(bmib$Sex,
+                   bmib$slp_newgrp)
+  test$expected # ALL cells have >5, assumption met
+  test
+  
+  
+  
+  #---
+```
+
+
+
+##HYPOTHESIS TESTING (III)       
+
+ ANOVA 
+
+
+$$
+\textrm{Hypothesis setup for Anova} \\
+H_0 : \mu_1 = \mu_2 = ...\mu_k
+\\
+H_1 :\textrm{All means are not equal}
+$$
+
+![ANOVA TABLE IMAGE](/Users/aryanjhaveri/Library/CloudStorage/OneDrive-BrockUniversity/HLSC2P07/Final Exam/Images for Markdown/ANOVA TABLE.png)
+
+
+$$
+\bar{X}: \text{overall mean}\\ 
+\bar{X_i}: \text{treatment (or group) mean} \\
+\\n_i: \text{sameple size per group} \\
+k: \text{Number of comparison groups} \\
+N: \text{Total number of obeservation in analysis.}\\
+$$
+
+
+
+The first column is entitled Source of Variation and delineates the between treatment and error or residual variation. 
+The total variation is the sum of the between-treatment and error variation. The second column is entitled Sums of Squares (SS). 
+
+SSB: The between-treatment sums of squares computed by summing the squared differences between each treatment (or group) mean (~) and the overall mean (X). 
+
+
+
+
+--- ASSUMPTIONS IN TWO WAY ANOVA --- 
+• All values (continuous outcome) can only be identified by one
+factor in one-way ANOVA (eg, weight loss lbs. by diet
+programs), or two factors in two-way ANOVA (eg, time for pain
+relief by treatment and sex).
+• Those outcome values are normally distributed.
+• The subjects in each group are not related (independent).
+• The variances in population for each group are equal (equal
+variances). If sL^2/Ss^2 < 9 the assumption is met.
+----
+
+
+```{HYPOTHESIS TESTING III ANOVA: FUNCTIONS}
+
+aov_onesided<- function(){
+  # • One continuous (interval or ratio) variable and one categorical 
+  #  (nominal or ordinal) variable
+  
+  
+  x1<- readline('Enter "x1" = ')
+  x1<- as.numeric(unlist(strsplit(x1, ",")))
+  x2<- readline('Enter "x2" = ')
+  x2<- as.numeric(unlist(strsplit(x2, ",")))
+  x3<- readline('Enter "x3" = ')
+  x3<- as.numeric(unlist(strsplit(x3, ",")))
+  x4<- readline('Enter "x4" = ')
+  x4<- as.numeric(unlist(strsplit(x4, ",")))
+  
+  cbind(x1,x2,x3,x4,deparse.level = 2)
+  
+  ## Hypothesis
+  cat("\n","Null Hypothesis, H0: mu(1) = mu(2) = mu(3) = ... = mu(k)")
+  cat("\n", "Alternative Hypothesis, H1: Population means are not equal \n")
+  
+ 
+  
+  m.std<- function(x) { 
+    m=mean(x)
+    va=sd(x)**2
+    print(cbind(m, va))}
+  
+  m.sumar<-data.frame(
+    rbind(m.std(x=x1),
+          m.std(x=x2),
+          m.std(x=x3),
+          m.std(x=x4),deparse.level = 2)
+    )
+  cat("\n Overall Mean:",mean(m.sumar$m),"\n")
+
+  
+  ## ASSUMPTION CHECK (EQUAL VARIANCE)
+  
+  
+  ##
+  
+  c3<- rep("inactive", times=length(x1)) ### CAN EDIT THESE
+  c2<- rep("moderate", times=length(x2)) 
+  c1 <- rep("vigorous", times=length(x3))
+  c4 <- rep("control",times =length(x4))
+  
+  bmi <-c(x1, x2, x3, x4) # EDIT THESE
+  pa.status <-c(c1, c2, c3, c4) # EDIT THESE
+  
+  data.ex1<- data.frame(cbind(bmi, pa.status))
+  data.ex1
+  
+  aov.result<-aov(bmi~pa.status,data=data.ex1) 
+  print(summary(aov.result))
+  
+  cat("\n Df1 = ",summary(aov.result)[[1]][["Df"]][1])
+  cat("\n Df2",summary(aov.result)[[1]][["Df"]][2])
+  cat("\nF.Crit = ",qf(1-0.05,summary(aov.result)[[1]][["Df"]][1],summary(aov.result)[[1]][["Df"]][2]))
+  
+  ##Decision Rule
+  cat("\n Reject H0, if F>= ",qf(1-0.05,summary(aov.result)[[1]][["Df"]][1],summary(aov.result)[[1]][["Df"]][2]))
+
+  
+    
+    if(summary(aov.result)[[1]][["Pr(>F)"]][1]<0.05){
+      cat("\n \n  Reject Null, Since p(",summary(aov.result)[[1]][["Pr(>F)"]][1],") is less than <",0.05)
+      cat("\n We have statistically significant evidence at a = 0.05 to show that there is a difference in [variable] by [x] [Groups")}
+    else{
+      cat("\n \n Fail to reject Null hypothesis.")
+      cat("\n Since p(",summary(aov.result)[[1]][["Pr(>F)"]][1],") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+      cat("\n We have statistically significant evidence at a = 0.05 to show that there is a difference in [variable] by [x] [Groups")}
+} ## CUSTOM OUTPUT - USER INPUT
+
+aov_twosided<- function(){
+  x1<- readline('Enter "x1" = ')
+  x1<- as.numeric(unlist(strsplit(x1, ",")))
+  x2<- readline('Enter "x2" = ')
+  x2<- as.numeric(unlist(strsplit(x2, ",")))
+  
+  cbind(x1,x2,deparse.level = 2)
+  
+  ## HYPOTEHSIS
+
+    cat("\n","Null Hypothesis, H0: mu(male) = mu(female)")
+    cat("\n","Null Hypothesis, H0: mu(1) = mu(2) = mu(3)")
+    cat("\n, Null Hypothesis, H0: mu(tr x sex) = 0")
+  
+  
+
+    cat("\n", "Alternative Hypothesis, H0: mu(male) != mu(female)")
+    cat("\n", "Alternative Hypothesis, H0: mu(1) != mu(2) != mu(3)")
+    cat("\n", "Alternative Hypothesis, H0: mu(tr x sex) != 0")
+  
+  s1c<- readline('Enter "s1(MALE) times" = ')
+  s1c<- as.numeric(unlist(strsplit(s1c, ",")))
+  s1<- rep("M", times=s1c) 
+  
+  s2c<- readline('Enter "s1 (FEMALE) times" = ')
+  s2c<- as.numeric(unlist(strsplit(s2c, ",")))
+  s2<- rep("F", times=s2c)
+  
+  tr<-c(rep("A", times=5), rep("B", times=5), rep("C", times=5))
+  
+  p<- function(X){
+    cbind(tapply(X, tr, length), 
+          tapply(X, tr, mean), 
+          tapply(X, tr, var)) }
+  
+  p(x1)
+  p(x2)
+  
+  
+  #create variable
+  score<-c(x1, x2)
+  sex<-c(s1, s2)
+  txt<-c(tr, tr)
+  #create dataset
+  pain<- data.frame(cbind(score, sex, txt)) 
+  print(pain)
+  
+  #Degrees of freedom
+  N <- nrow(pain)
+  K <- 3 #treatment groups
+  k <- 2 #sex
+  
+  dft <- N -1
+  dftr <- K -1
+  dfsex<- k-1
+  dftr_sex<- (K*k)- k - k+1
+  df_ne<- N - (K*k)
+  
+  
+  print(cbind(Degrees_of_Freedom= cbind(dft,dftr,dfsex,dftr_sex,df_ne,deparse.level = 1),deparse.level = 1))
+  ftr<-qf(1-0.05,2,24)
+  fsex<-qf(1-0.05,1,24)
+  ftr_sex<-qf(1-0.05,2,24)
+  
+  print(cbind(ftr,fsex,ftr_sex,deparse.level = 1))
+  
+  cat("\n Reject the null if F > Ftr =",ftr,"for treatment")
+  cat("\n Reject the null if F > fsex=", fsex,"for sex")
+  cat("\n Reject the null if F > ftr_sex",ftr_sex," for interaction \n")
+  
+  
+  
+  
+  
+  #2-way anova without interaction 
+  print("2-way anova without interaction")
+  aov_wito <- anova(lm(score~ sex + txt,  data=pain))
+  print(aov_wito)
+  
+
+  if(aov_wito[[5]][1]<0.05){
+    cat("\n [Sex]: P<0.05, Reject HO. Therefore, [pain score] is significantly different between [[male]] and [female].\n")}
+  else{
+    cat("\n [Sex]: P>0.05, Fail to Reject HO. Therefore, [pain score] is not significantly different between [male] and [female]. \n")
+  }
+  
+  if(aov_wito[[5]][2]<0.05){
+    cat("\n [Treatment]: P<0.05, reject HO. Therefore, [pain score] is significantly different by [treatment] groups.\n")}
+  else{
+    cat("\n [Treatment]: P>0.05, Fail to reject HO. Therefore, [pain score] is not significantly different by [treatment] groups.\n")
+  }
+  
+  # [Sex]: P<0.05, Reject HO. Therefore, [pain score] is significantly different between [male] and [female]. 
+  # [Treatment]: P>0.0, Fail to reject HO. Therefore, [pain score] is not significantly different by [treatment] groups.
+
+  cat("\n ------------------------------------ \n")
+  #2-way anova with interaction
+  print("2-way anova with interaction")
+  aov_wit<-anova(lm(score~sex + txt + sex*txt, data=pain))
+  print(aov_wit)
+
+  
+  if(aov_wit[[5]][1]<0.05){
+   cat("\n [Sex]: P<0.05, Reject HO. [Sex] is still significant accounting for the [Sex]*[treatment] interaction \n")}
+  else{
+    at("\n [Sex]: P>0.05, Fail to Reject HO. [Sex] is still not significant accounting for the [Sex]*[treatment] interaction \n")
+  }
+  
+  if(aov_wit[[5]][2]<0.05){
+    cat("\n [Treatment]: P<0.05, Reject HO. [Treatment] is significant after accounting for the [Sex]*[treatment] interaction.\n ")}
+  else{
+    cat("\n [Treatment]: P>0.05, Fail to Reject HO. [Treatment] is not significant after accounting for the [Sex]*[treatment] interaction. \n")}
+  
+  # At least one pair of [treatment] group have mean [pain score] that are not equal. 
+   
+  if(aov_wit[[5]][3]<0.05){
+    cat("\n [Sex]*[Treatment] interaction: P<0.05, Reject HO. There is a significant interaction.\n ")}
+  else{
+    cat("\n [Sex]*[Treatment] interaction: P>0.05, Fail to Reject HO. There is not a significant interaction.\n ")
+  }
+} ## CUSTOM OUTPUT - USER INPUT
+
+```
+
+
+
+
+
+
+
+
+```{HYPOTHESIS III: EXTERNAL}
+## -----EXTERNAL DATA -----
+
+#'*One way External*
+  # ----
+  
+  #Import Data 
+  #When your working directory is set, use: 
+  data.survey<-read.csv("HLSC2P07Final.csv")
+  data.murvy<-read.csv("hq_2021.csv")
+  
+  ## Calculate & Add BMI Variable to a new dataset
+  library(tidyverse)
+  bmi<-mutate(data.survey,
+              Weight= wt.kg*0.454, # CHANGE THESE
+              #Height= ht.m/100, ## CONVERTS TO METERS
+            bmi=wt.kg/(ht.m**2))
+  
+  ## BMI Grouping
+  bmigrp <-cut(bmi$bmi, c(-99, 24.9, 29.9, 99), 
+             labels = c("Normal", "Overweight", "Obese"))
+  table(bmigrp)
+  
+  # Create 2*3 table to show n, mean, and var 
+  cbind("length"=tapply(bmi$Age, bmigrp, length), 
+        "mean"=tapply (bmi$Age, bmigrp, mean), 
+        "var"=tapply(bmi$Age, bmigrp, var,))
+  
+  #Conduct ONE WAY
+  aov.resultb<-aov(Age~bmigrp, data=bmi) 
+  summary(aov.resultb)
+  
+  for(i in aov.resultb){ ## DONT COPY THIS JUST FOR ANSWERS SAKE
+    if(summary(aov.resultb)[[1]][["Pr(>F)"]][1]<0.05){
+      cat("\n \n  Reject Null, Since p(",summary(aov.resultb)[[1]][["Pr(>F)"]][1],") is less than <",0.05)
+      cat("\n We have statistically significant evidence at a = 0.05 to show that there is a difference in [variable] by [x] [Groups")}
+    else{
+      cat("\n \n Fail to reject Null hypothesis.")
+      cat("\n Since p(",summary(aov.resultb)[[1]][["Pr(>F)"]][1],") is greater than", 0.05,"\n We do not have statistically significant evidence to reject the Null Hypothesis")
+      cat("\n We have statistically significant evidence at a = 0.05 to show that there is a difference in [variable] by [x] [Groups]")
+    }
+  }
+  #----
+
+  
+#'* TWO WAY EXTERNAL* 
+  #----
+  
+  #Import Data 
+  #When your working directory is set, use: 
+  data.survey<-read.csv("HLSC2P07Final.csv")
+  #data.murvy<-read.csv("hq_2021.csv")
+  
+  ## Calculate & Add BMI Variable to a new dataset
+  library(tidyverse)
+  bmi<-mutate(data.survey,
+              Weight= wt.kg*0.454, # CHANGE THESE
+              #Height= ht.m/100, ## CONVERTS TO METERS
+              bmi=wt.kg/(ht.m**2))
+  
+  ## BMI Grouping
+  bmigrp <-cut(bmi$bmi, c(-99, 24.9, 29.9, 99), 
+               labels = c("Normal", "Overweight", "Obese"))
+  table(bmigrp)
+  
+  #Conduct Test
+  result.2way<-anova(lm(Age~bmigrp + Sex + Sex*bmigrp, data=bmi))
+  result.2way
+  
+  # Bmi group: P>0.05, Fail to Reject HO. There is no significant difference in mean age among bmi 
+  # Sex: P>0.05, Fail to Reject HO. There is no significant difference in mean age among sex. 
+  # Sex* Bmi group interaction: P>0.05, Fail to Reject HO. There is no significant interaction. group.
+```
+
+
+##POWER AND SAMPLE SIZE DETERMINATION
+
+
+```{Custom Codes}
+#'* DETERMINING SAMPLE SIZE FOR CONFIDENCE INTERVAL TESTING *
+##Find n for One Sample, Continuous Outcome
+find1samp_n_cont<-function(units,sigma){
+  Z<- qnorm(0.975) #95% | for 90% 0.925
+  n = ((Z*sigma)/(units))**2
+  print(cbind(n,Z,sigma,units,deparse.level = 1))
+  n1 = ceiling(n)
+  cat("Thus we need a sample of",n1,"with [x variable]")
+  attr = readline("Attrition rate (in %) | Enter 0 if null? = ")
+  if(attr == 0){
+    stop()
+  }
+  else{
+    attr = (as.numeric(attr))/100
+    cat("\n Thus attrition rate is", attr)
+    
+    retained = 1-attr
+    cat("\n Thus retained % is", retained)
+    
+    cat("\nThus account for", attr*100 ,"% attrition \n")
+    cat("\n Need to Enroll*(%retained)[",retained,"]=",n1)
+    cat("\n Thus Need to enroll=",n,"/",retained,"\n")
+    print(n1/retained)
+    ceiling(n1/retained)
+    
+    
+    cat("\n thus need to enroll:",ceiling(n1/retained),"[x] after accounting for attrition")
+  
+}} ## CUSTOM OUTPUT
+
+#Find n for One Sample, Dichotomous Outcome
+find1samp_n_dic <- function(E){
+  #When p is unknown, using 0.5 to produce largest n (most conservative)
+  p<- 0.5
+  Z<- qnorm(0.975) #95% | for 90% 0.925
+  n = p*(1-p)*(((Z)/E)**2)
+  print(cbind(n,Z,p))
+  n1 = ceiling(n)
+  cat("Thus we need a sample of",n1,"with [variable]")
+
+} ## CUSTOM OUTPUT
+
+
+#Find n for Two Independent Samples, Continuous Outcome
+find2samp_n_cont<-function(units,sigma){
+  p<- qnorm(0.975) #95% | for 90% 0.925
+  n = 2*((p*sigma)/(units))**2
+  print(cbind(n,p,sigma,units,deparse.level = 1))
+  n1 = ceiling(n)
+  n2 = ceiling(n)
+  cat("Thus we need a sample of",n1,"and",n2,"with [x variable]")
+  n=n1+n2
+  
+  attr = readline("Attrition rate (in %)? = ")
+  attr = (as.numeric(attr))/100
+  cat("\n Thus attrition rate$ is", attr*100)
+  
+  retained = 1-attr
+  cat("\n Thus retained % is", retained*100)
+  
+  cat("\n Thus account for 10% attrition \n")
+  cat("\n Need to Enroll*(%retained)[",retained,"]=",n)
+  cat("\n Thus Need to enroll=",n,"/",retained,"\n")
+  print(n/retained)
+  ceiling(n/retained)
+  
+  
+  cat("\n thus need to enroll:",ceiling(n/retained),"[x] after accounting for attrition")
+} ## CUSTOM OUTPUT
+
+
+##Find n for Two Independent Samples, Dichotomous Outcome
+find2samp_n_dict<-function(p1,p2,E){
+  p1=p1/100
+  p2=p2/100
+  E=E/100
+  Z=qnorm(0.975)
+  print(cbind(p1,p2,E,Z))
+  n<- ((p1*(1-p1))+(p2*(1-p2)))*((Z/E)**2)
+  n1 = ceiling(n)
+  n2 = ceiling(n)
+  cat("Thus we need a sample of",n1,"and",n2,"with [x variable]")
+  
+  n=n1+n2
+  
+  # Samples of size n₁ 433 women who smoked during pregnancy and n₂ = 433 women who did not smoke during pregnancy 
+  # will ensure that the 95% confidence interval for the difference in proportions 
+  # who deliver prematurely will have a margin of error of no more than 4%. 
+  
+  attr = readline("Attrition rate (in %)? = ")
+  attr = (as.numeric(attr))/100
+  cat("\n Thus attrition rate% is", attr*100)
+  
+  retained = 1-attr
+  cat("\n Thus retained % is", retained*100)
+  
+  cat("\n Thus account for 10% attrition \n")
+  cat("\n Need to Enroll*(%retained)[",retained,"]=",n)
+  cat("\n Thus Need to enroll=",n,"/",retained,"\n")
+  print(n/retained)
+  ceiling(n/retained)
+  
+  
+  cat("\n thus need to enroll:",ceiling(n/retained),"[x] after accounting for attrition")
+  
+
+} ## CUSTOM OUTPUT
+
+
+
+#'* DETERMINING SAMPLE SIZE FOR HYPOTHESIS TESTING *
+
+#Find n to Test H0: mu = mu0
+
+find_hypo_mu<-function(mud,sigma,power){
+  
+  ES <- round(mud/sigma,2)
+  cat("Effect size = ",ES,"\n")
+  z<-round(qnorm(0.975),2)
+  pwr=power/100
+  p<-round(qnorm(pwr),2)
+  print(cbind(Z_alpha=z,
+              Z_pwr=p,
+              ES=ES
+    
+  ))
+  n<-((z+p)/ES)**2
+  
+  cat("\n Thus a sample of", ceiling(n),"[units] \n Will ensure that a two sided test with alpha = 0.05 has",
+      power,"% power to detect",mud,"[units] difference in [variable]")
+  
+  attr = readline("Attrition rate (in %)? = ")
+  attr = (as.numeric(attr))/100
+  cat("\n Thus attrition rate% is", attr*100)
+  
+  retained = 1-attr
+  cat("\n Thus retained % is", retained*100)
+  
+  cat("\n Thus account for 10% attrition \n")
+  cat("\n Need to Enroll*(%retained)[",retained,"]=",ceiling(n))
+  cat("\n Thus Need to enroll=",ceiling(n),"/",retained,"\n")
+  print(ceiling(n)/retained)
+  ceiling(ceiling(n)/retained)
+  
+  
+  cat("\n thus need to enroll:",ceiling(ceiling(n)/retained),"[x] after accounting for attrition")
+  
+} ## CUSTOM OUTPUT
+
+#Find n to Test H0: p = p0
+find_hypo_p<-function(p_d,p0,power){
+  ES <- round(p_d/(sqrt(p0*(1-p0))),3)
+  cat("Effect size = ",ES,"\n")
+  z<-round(qnorm(0.975),3)
+  pwr=power/100
+  p<-round(qnorm(pwr),3)
+  print(cbind(Z_alpha=z,
+              Z_pwr=p,
+              ES=ES
+              
+  ))
+  n<-((z+p)/ES)**2
+  
+  cat("\n Thus a sample of", ceiling(n),"[units] \n Will ensure that a two sided test with alpha = 0.05 has",
+      power,"% power to detect",p_d,
+      "[units] \n in the propotion of [patients] with a history of [cvd] who have [elevated variable]")
+  
+  
+} ## CUSTOM OUTPUT
+  
+
+#Find n1, n2 to Test H0: m1 = m2
+find_hypo_mu_n1n2<-function(mud,sigma,power){
+  ES <- round(mud/sigma,2)
+  cat("Effect size = ",ES,"\n")
+  z<-round(qnorm(0.975),2)
+  pwr=power/100
+  p<-round(qnorm(pwr),2)
+  print(cbind(Z_alpha=z,
+              Z_pwr=p,
+              ES=ES
+              
+  ))
+  n<-2*((z+p)/ES)**2
+  n1<-ceiling(n)
+  n2<-ceiling(n)
+  
+  
+  cat("\n Thus samples of", n1,"[units] [variable] and",n2," [units] [variable]\n Will ensure that a two sided test with alpha = 0.05 has",
+      power,"% power to detect",mud,"[units] difference in [variable]")
+  
+  attr = readline("Attrition rate (in %)? = ")
+  attr = (as.numeric(attr))/100
+  cat("\n Thus attrition rate% is", attr*100)
+  
+  retained = 1-attr
+  cat("\n Thus retained % is", retained*100)
+  
+  cat("\n Thus account for 10% attrition \n")
+  cat("\n Need to Enroll*(%retained)[",retained,"]=",n1+n2)
+  cat("\n Thus Need to enroll=",n1+n2,"/",retained,"\n")
+  print((n1+n2)/retained)
+  ceiling((n1+n2)/retained)
+  
+  #print(ceiling(n1+n2/retained))
+  
+  
+  cat("\n thus need to enroll:",ceiling((n1+n2)/retained),"[x] after accounting for attrition")
+  
+} ## CUSTOM OUTPUT
+
+#Find n to Test H0: 𝜇d = 0
+find_hypo_mu(10,20,80)
+
+#Find n1, n2 to Test H0: p1 = p2 
+find_hypo_p1p2<-function(p_d,p1,power){
+  ES <- round(p_d/(sqrt(p1*(1-p1))),3)
+  cat("Effect size = ",ES,"\n")
+  z<-round(qnorm(0.975),3)
+  pwr=power/100
+  p<-round(qnorm(pwr),3)
+  print(cbind(Z_alpha=z,
+              Z_pwr=p,
+              ES=ES
+              
+  ))
+  n<-2*((z+p)/ES)**2
+  
+  cat("\n Thus a sample of", ceiling(n),"[units] \n Will ensure that a two sided test with alpha = 0.05 has",
+      power,"% power to detect",p_d,
+      "[units] \n in the propotion of [patients] with a history of [cvd] who have [elevated variable]")
+  
+  
+} ## CUSTOM OUTPUT
+```
+
+
+
+
+
+
+
